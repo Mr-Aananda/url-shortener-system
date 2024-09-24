@@ -1,6 +1,6 @@
-# Laravel 11 Simple Project
+# URL Shortener System
 
-This is a Laravel 11 project that implements basic CRUD operations for Users and Blogs, along with event-driven email notifications. The project uses the Repository Pattern for data management and Laravel Breeze for authentication.
+This is a URL Shortener application built with Laravel. The application allows users to input long URLs and generate short, shareable links.
 
 ## Getting Started
 
@@ -9,39 +9,46 @@ This is a Laravel 11 project that implements basic CRUD operations for Users and
 - PHP 8.2 or higher
 - Composer
 - MySQL
+- Node.js (for frontend dependencies)
 
 ### Installation
 
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/Mr-Aananda/laravel11.git
-    cd larvel11
+    git clone https://github.com/<your-username>/url-shortener-system.git
+    cd url-shortener-system
     ```
 
-2. **Install dependencies:**
+2. **Install PHP dependencies:**
 
     ```bash
     composer install
     ```
 
-3. **Copy the `.env` file:**
+3. **Install frontend dependencies:**
+
+    ```bash
+    npm install
+    ```
+
+4. **Copy the `.env` file:**
 
     ```bash
     cp .env.example .env
     ```
 
-4. **Set up your environment variables:**
+5. **Set up your environment variables:**
 
     Open the `.env` file and update the database credentials and other necessary settings.
 
-5. **Generate the application key:**
+6. **Generate the application key:**
 
     ```bash
     php artisan key:generate
     ```
 
-6. **Run migrations and seed the database:**
+7. **Run migrations and seed the database:**
 
     ```bash
     php artisan migrate --seed
@@ -49,13 +56,13 @@ This is a Laravel 11 project that implements basic CRUD operations for Users and
 
     This will create the necessary database tables and seed them with an admin user.
 
-7. **Serve the application:**
+8. **Serve the application:**
 
     ```bash
     php artisan serve
     ```
 
-8. **Log in:**
+9. **Log in:**
 
     Use the following credentials to log in:
 
@@ -64,29 +71,35 @@ This is a Laravel 11 project that implements basic CRUD operations for Users and
 
 ## Features
 
-### CRUD Operations
+### URL Shortening
 
-The project includes full CRUD (Create, Read, Update, Delete) functionality for two entities:
+- Create a web form where users can input long URLs.
+- Implement the logic to generate short URLs for the inputted long URLs.
+- Display the original long URL along with the generated short URL for reference.
 
-1. **Users:**
-   - Manage users with typical CRUD operations.
+### Redirection
 
-2. **Blogs:**
-   - Fields: `title`, `slug`, `details`
-   - Manage blogs with typical CRUD operations.
+- When users access a short URL, it should redirect them to the original long URL.
 
-### Repository Pattern
+### Statistics
 
-The project uses the Repository Pattern to abstract the data layer, making it easier to manage and maintain.
+- Track the number of times each short URL is accessed (click count).
+- Provide a way for users to view the click count for their shortened URLs.
 
-### Laravel Events and Listeners
+### User Authentication
 
-When a blog post is created by User A and later updated by User B, an event is triggered to notify User A. This event dispatches an email notification using Laravel's Queue system to handle the task asynchronously.
+- Implement user authentication.
+- Allow registered users to manage their own shortened URLs and view click statistics for their links.
 
-### Authentication
+### Security
 
-The project uses Laravel Breeze for simple and effective authentication, including registration, login, and password reset functionalities.
+- Ensure data security and user privacy.
+- Implement proper input validation and protection against common web vulnerabilities.
+
+### Optional
+
+- Provide an API for shortening URLs programmatically.
 
 ## Conclusion
 
-This project serves as a foundational setup for managing users and blogs in a Laravel application, incorporating best practices such as the Repository Pattern and event-driven programming with queued email notifications.
+This project serves as a simple and effective way to manage long URLs by converting them into short, shareable links while providing tracking and statistics for user engagement.
