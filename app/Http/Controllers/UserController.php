@@ -106,30 +106,4 @@ class UserController extends Controller
             return redirect()->back()->withErrors('An error occurred while deleting the user.');
         }
     }
-
-    /**
-     * Get user data
-     * @param $request
-     * @return array
-     */
-    private function getUserData($request, $from = 'create'): array
-    {
-        $primary_data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'email_verified_at' => now(),
-        ];
-
-        if ($from === 'update') {
-            if ($request->password) {
-                $primary_data['password'] = Hash::make($request->password);
-            }
-            return $primary_data;
-        } else {
-            $create_data = [
-                'password' => Hash::make($request->password),
-            ];
-            return array_merge($primary_data, $create_data);
-        }
-    }
 }

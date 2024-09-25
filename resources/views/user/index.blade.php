@@ -54,7 +54,6 @@
                                                 Edit
                                             </a>
 
-                                            <!-- Delete Form -->
                                             <form action="{{ route('user.destroy', $user->id) }}" method="POST" class="ms-1 inline-block">
                                                 @csrf
                                                 @method('DELETE')

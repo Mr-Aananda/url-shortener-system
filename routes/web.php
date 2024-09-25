@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\DashboardController; // Import the DashboardController
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UrlController;
 use App\Http\Controllers\UserController;
@@ -21,10 +21,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    //User Controller
+    //User Controllers
     Route::resource('user', UserController::class);
 
-    //URL Controller
+    //URL Controllers
     Route::resource('url', UrlController::class);
     route::get('/s/{shortUrl}', [UrlController::class, 'redirectToMainUrl'])->name('url.redirect');
 });

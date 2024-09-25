@@ -35,11 +35,11 @@
                         <!-- Long URL Input -->
                         <div>
                             <x-input-label for="long_url" :value="__('Long URL')" />
-                            <x-text-input id="long_url" class="block mt-1 w-full" type="url" name="long_url" :value="old('long_url')" required autofocus placeholder="https://example.com" />
+                            <x-text-input id="long_url" class="block mt-1 w-full" type="url" name="long_url" :value="old('long_url')" required autofocus placeholder="EX: https://long-url.com" />
                             <x-input-error :messages="$errors->get('long_url')" class="mt-2" />
                         </div>
 
-                        <!-- Custom Short Code (Optional) -->
+                        <!-- Short URL -->
                         <div class="mt-4">
                             <x-input-label for="short_url" :value="__('Custom Shortener URL (Optional)')" />
                             <x-text-input id="short_url" class="block mt-1 w-full" type="text" name="short_url" :value="old('short_url')" placeholder="Ex: custom-short-url" />

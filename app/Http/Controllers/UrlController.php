@@ -7,6 +7,8 @@ use App\Repositories\Url\UrlRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UrlController extends Controller
 {
@@ -16,6 +18,7 @@ class UrlController extends Controller
     {
         $this->urlRepository = $urlRepository;
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -38,26 +41,36 @@ class UrlController extends Controller
      */
     public function store(UrlRequest $request)
     {
-        // If no custom short url from request then create random short url
-        $shortUrl = $request->short_url ? $request->short_url : Str::random(10);
+        $shortUrl = $request->short_url ?: Str::random(10);
 
-        $this->urlRepository->create([
-            'long_url' => $request->input('long_url'),
-            'short_url' => $shortUrl,
-            'user_id' => Auth::id(),
-        ]);
+        try {
+            DB::transaction(function () use ($request, $shortUrl) {
+                $this->urlRepository->create([
+                    'long_url' => $request->input('long_url'),
+                    'short_url' => $shortUrl,
+                    'user_id' => Auth::id(),
+                ]);
+            });
 
-        return redirect()->back()->with('success', 'URL Created Successfully.');
+            return redirect()->back()->with('success', 'URL Created Successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error creating URL:', ['error' => $e->getMessage()]);
+            return redirect()->back()->withErrors('An error occurred while creating the URL.');
+        }
     }
-
 
     /**
      * Display the specified resource.
      */
     public function show($shortUrl)
     {
-        $url = $this->urlRepository->findByShortUrl($shortUrl);
-        return view('url.show', compact('url'));
+        try {
+            $url = $this->urlRepository->findByShortUrl($shortUrl);
+            return view('url.show', compact('url'));
+        } catch (\Exception $e) {
+            Log::error('Error displaying URL:', ['error' => $e->getMessage()]);
+            return redirect()->back()->withErrors('An error occurred while displaying the URL.');
+        }
     }
 
     /**
@@ -65,8 +78,13 @@ class UrlController extends Controller
      */
     public function edit($shortUrl)
     {
-        $url = $this->urlRepository->findByShortUrl($shortUrl);
-        return view('url.edit', compact('url'));
+        try {
+            $url = $this->urlRepository->findByShortUrl($shortUrl);
+            return view('url.edit', compact('url'));
+        } catch (\Exception $e) {
+            Log::error('Error editing URL:', ['error' => $e->getMessage()]);
+            return redirect()->back()->withErrors('An error occurred while editing the URL.');
+        }
     }
 
     /**
@@ -74,20 +92,39 @@ class UrlController extends Controller
      */
     public function update(UrlRequest $request, string $id)
     {
-        $this->urlRepository->update($id, $request->only(['long_url', 'short_url']));
+        try {
+            // Check if short_url is provided; if not, generate a new one
+            $data = $request->only(['long_url']);
+            $data['short_url'] = $request->short_url ? $request->short_url : Str::random(10);
 
-        return redirect()->route('url.index')->with('success', 'URL Updated Successfully.');
+            DB::transaction(function () use ($id, $data) {
+                $this->urlRepository->update($id, $data);
+            });
+
+            return redirect()->route('url.index')->with('success', 'URL Updated Successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error updating URL:', ['error' => $e->getMessage()]);
+            return redirect()->back()->withErrors('An error occurred while updating the URL.');
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $this->urlRepository->delete($id);
-        return redirect()->route('url.index')->with('success', 'URL Deleted Successfully.');
-    }
+        try {
+            DB::transaction(function () use ($id) {
+                $this->urlRepository->delete($id);
+            });
 
+            return redirect()->route('url.index')->with('success', 'URL Deleted Successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting URL:', ['error' => $e->getMessage()]);
+            return redirect()->back()->withErrors('An error occurred while deleting the URL.');
+        }
+    }
 
     /**
      * Redirect the short URL to the main URL.
@@ -95,9 +132,13 @@ class UrlController extends Controller
     public function redirectToMainUrl($shortUrl)
     {
         $url = $this->urlRepository->findByShortUrl($shortUrl);
+
+        if (!$url) {
+            return redirect()->back()->withErrors('URL not found.');
+        }
         $this->urlRepository->incrementClickCount($url);
+
         return redirect()->to($url->long_url);
     }
-
 
 }

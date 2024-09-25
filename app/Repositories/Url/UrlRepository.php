@@ -35,7 +35,7 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function paginate(int $perPage = 25)
     {
-        return Url::paginate($perPage);
+        return Url::orderBy('created_at', 'desc')->paginate($perPage);
     }
 
     public function findByShortUrl(string $shortUrl)
@@ -48,8 +48,8 @@ class UrlRepository implements UrlRepositoryInterface
         $url->increment('click_count');
     }
 
-    public function getAllByUserId(int $userId)
+    public function getAllByUserId(int $userId, int $perPage = 25)
     {
-        return Url::where('user_id', $userId)->paginate(25);
+        return Url::where('user_id', $userId)->paginate($perPage);
     }
 }
