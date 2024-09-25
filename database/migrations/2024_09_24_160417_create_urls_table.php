@@ -20,7 +20,7 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->nullOnDelete();
             $table->string('long_url', 2048);
-            $table->string('short_url', 10)->unique();
+            $table->string('short_url', 25)->unique();
             $table->unsignedBigInteger('click_count')->default(0);
             $table->timestamps();
         });

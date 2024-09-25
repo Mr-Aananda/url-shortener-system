@@ -45,10 +45,11 @@
                                         <td class="py-3 px-4 border-r border-gray-300">{{ $index + 1 }}.</td>
                                         {{-- <td class="py-3 px-4 border-r border-gray-300">{{ $url->long_url }}</td> --}}
                                         <td class="py-3 px-4 border-r border-gray-300 w-64 overflow-hidden text-ellipsis whitespace-nowrap">
-                                            <a href="{{ route('url.redirect', $url->short_url) }}" class="text-blue-500 underline" target="__blank">
+                                            <a href="{{ route('url.redirect', $url->short_url) }}" class="text-blue-500 underline" target="_blank">
                                                 {{ url($url->short_url) }}
                                             </a>
                                         </td>
+
 
                                         <td class="py-3 px-4 border-r border-gray-300">{{ $url->click_count }}</td>
                                         <td class="py-3 px-4 flex justify-end">
@@ -56,7 +57,7 @@
                                                 Show
                                             </a>
 
-                                            <a href="{{ route('url.edit', $url->id) }}" class="ms-1 inline-flex items-center px-3 py-1 text-gray-700 bg-gray-200 border border-transparent rounded-md text-xs font-medium hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                            <a href="{{ route('url.edit', $url->short_url) }}" class="ms-1 inline-flex items-center px-3 py-1 text-gray-700 bg-gray-200 border border-transparent rounded-md text-xs font-medium hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                                                 Edit
                                             </a>
 

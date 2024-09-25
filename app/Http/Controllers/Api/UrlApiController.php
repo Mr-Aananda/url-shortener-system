@@ -1,36 +1,33 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\UrlRequest;
 use App\Repositories\Url\UrlRepositoryInterface;
+use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
-class UrlController extends Controller
+class UrlApiController extends Controller
 {
+    use HttpResponses;
     protected $urlRepository;
 
     public function __construct(UrlRepositoryInterface $urlRepository)
     {
         $this->urlRepository = $urlRepository;
     }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         $urls = $this->urlRepository->getAllByUserId(Auth::id());
-        return view('url.index', compact('urls'));
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('url.create');
+        return $this->success($urls, 'URLs retrieved successfully.');
     }
 
     /**
@@ -38,18 +35,16 @@ class UrlController extends Controller
      */
     public function store(UrlRequest $request)
     {
-        // If no custom short url from request then create random short url
         $shortUrl = $request->short_url ? $request->short_url : Str::random(10);
 
-        $this->urlRepository->create([
+        $url = $this->urlRepository->create([
             'long_url' => $request->input('long_url'),
             'short_url' => $shortUrl,
             'user_id' => Auth::id(),
         ]);
 
-        return redirect()->back()->with('success', 'URL Created Successfully.');
+        return $this->success($url, 'URL created successfully.', 201);
     }
-
 
     /**
      * Display the specified resource.
@@ -57,16 +52,12 @@ class UrlController extends Controller
     public function show($shortUrl)
     {
         $url = $this->urlRepository->findByShortUrl($shortUrl);
-        return view('url.show', compact('url'));
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($shortUrl)
-    {
-        $url = $this->urlRepository->findByShortUrl($shortUrl);
-        return view('url.edit', compact('url'));
+        if (!$url) {
+            return $this->error(null, 'URL not found.', 404);
+        }
+
+        return $this->success($url, 'URL retrieved successfully.');
     }
 
     /**
@@ -74,9 +65,9 @@ class UrlController extends Controller
      */
     public function update(UrlRequest $request, string $id)
     {
-        $this->urlRepository->update($id, $request->only(['long_url', 'short_url']));
+        $url = $this->urlRepository->update($id, $request->validated());
 
-        return redirect()->route('url.index')->with('success', 'URL Updated Successfully.');
+        return $this->success($url, 'URL updated successfully.');
     }
 
     /**
@@ -85,9 +76,9 @@ class UrlController extends Controller
     public function destroy(string $id)
     {
         $this->urlRepository->delete($id);
-        return redirect()->route('url.index')->with('success', 'URL Deleted Successfully.');
-    }
 
+        return $this->success(null, 'URL deleted successfully.');
+    }
 
     /**
      * Redirect the short URL to the main URL.
@@ -95,9 +86,13 @@ class UrlController extends Controller
     public function redirectToMainUrl($shortUrl)
     {
         $url = $this->urlRepository->findByShortUrl($shortUrl);
+
+        if (!$url) {
+            return $this->error(null, 'URL not found.', 404);
+        }
+
         $this->urlRepository->incrementClickCount($url);
-        return redirect()->to($url->long_url);
+
+        return $this->success($url->long_url, 'Redirecting to the long URL.');
     }
-
-
 }

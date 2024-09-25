@@ -50,6 +50,6 @@ class UrlRepository implements UrlRepositoryInterface
 
     public function getAllByUserId(int $userId)
     {
-        return Url::where('user_id', $userId)->paginate(10);
+        return Url::where('user_id', $userId)->paginate(25);
     }
 }

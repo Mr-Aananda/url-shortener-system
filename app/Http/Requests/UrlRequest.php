@@ -23,7 +23,7 @@ class UrlRequest extends FormRequest
     {
         return [
             'long_url' => 'required|url|max:2048',
-            'short_url' => 'nullable|string|max:10|unique:urls,short_url' . ($this->isMethod('put') ? ',' . $this->route('url') : ''),
+            'short_url' => 'nullable|string|max:25|unique:urls,short_url' . ($this->isMethod('put') ? ',' . $this->route('url') : ''),
         ];
     }
 
@@ -36,7 +36,7 @@ class UrlRequest extends FormRequest
             'long_url.required' => 'The long URL is required.',
             'long_url.url' => 'The long URL must be a valid URL.',
             'long_url.max' => 'The long URL must not exceed 2048 characters.',
-            'short_url.max' => 'The short URL must not exceed 10 characters.',
+            'short_url.max' => 'The short URL must not exceed 25 characters.',
             'short_url.unique' => 'The short URL has already been taken.',
         ];
     }
