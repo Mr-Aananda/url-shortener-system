@@ -38,17 +38,17 @@ class UrlRepository implements UrlRepositoryInterface
         return Url::orderBy('created_at', 'desc')->paginate($perPage);
     }
 
-    public function findByShortUrl(string $shortUrl)
+    public function findUrlByShortUrl(string $shortUrl)
     {
         return Url::where('short_url', $shortUrl)->firstOrFail();
     }
 
-    public function incrementClickCount($url)
+    public function incrementShortUrlClickCount($url)
     {
         $url->increment('click_count');
     }
 
-    public function getAllByUserId(int $userId, int $perPage = 25)
+    public function getAllUrlByUserId(int $userId, int $perPage = 25)
     {
         return Url::where('user_id', $userId)->paginate($perPage);
     }

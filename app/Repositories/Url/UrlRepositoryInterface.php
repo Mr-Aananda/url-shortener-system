@@ -11,7 +11,7 @@ interface UrlRepositoryInterface
     public function delete($id);
     public function paginate(int $perPage = 25);
 
-    public function findByShortUrl(string $shortCode);
-    public function incrementClickCount($url);
-    public function getAllByUserId(int $userId);
+    public function findUrlByShortUrl(string $shortCode);
+    public function incrementShortUrlClickCount($url);
+    public function getAllUrlByUserId(int $userId);
 }

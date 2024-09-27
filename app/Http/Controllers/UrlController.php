@@ -24,7 +24,7 @@ class UrlController extends Controller
      */
     public function index()
     {
-        $urls = $this->urlRepository->getAllByUserId(Auth::id());
+        $urls = $this->urlRepository->getAllUrlByUserId(Auth::id());
         return view('url.index', compact('urls'));
     }
 
@@ -65,7 +65,7 @@ class UrlController extends Controller
     public function show($shortUrl)
     {
         try {
-            $url = $this->urlRepository->findByShortUrl($shortUrl);
+            $url = $this->urlRepository->findUrlByShortUrl($shortUrl);
             return view('url.show', compact('url'));
         } catch (\Exception $e) {
             Log::error('Error displaying URL:', ['error' => $e->getMessage()]);
@@ -79,7 +79,7 @@ class UrlController extends Controller
     public function edit($shortUrl)
     {
         try {
-            $url = $this->urlRepository->findByShortUrl($shortUrl);
+            $url = $this->urlRepository->findUrlByShortUrl($shortUrl);
             return view('url.edit', compact('url'));
         } catch (\Exception $e) {
             Log::error('Error editing URL:', ['error' => $e->getMessage()]);
@@ -93,7 +93,6 @@ class UrlController extends Controller
     public function update(UrlRequest $request, string $id)
     {
         try {
-            // Check if short_url is provided; if not, generate a new one
             $data = $request->only(['long_url']);
             $data['short_url'] = $request->short_url ? $request->short_url : Str::random(10);
 
@@ -131,12 +130,12 @@ class UrlController extends Controller
      */
     public function redirectToMainUrl($shortUrl)
     {
-        $url = $this->urlRepository->findByShortUrl($shortUrl);
+        $url = $this->urlRepository->findUrlByShortUrl($shortUrl);
 
         if (!$url) {
             return redirect()->back()->withErrors('URL not found.');
         }
-        $this->urlRepository->incrementClickCount($url);
+        $this->urlRepository->incrementShortUrlClickCount($url);
 
         return redirect()->to($url->long_url);
     }

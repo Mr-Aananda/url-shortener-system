@@ -29,5 +29,4 @@ Route::middleware('auth')->group(function () {
     route::get('/s/{shortUrl}', [UrlController::class, 'redirectToMainUrl'])->name('url.redirect');
 });
 
-
 require __DIR__ . '/auth.php';

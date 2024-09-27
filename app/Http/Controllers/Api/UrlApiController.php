@@ -25,7 +25,7 @@ class UrlApiController extends Controller
      */
     public function index(): JsonResponse
     {
-        $urls = $this->urlRepository->getAllByUserId(Auth::id());
+        $urls = $this->urlRepository->getAllUrlByUserId(Auth::id());
         return response()->json(['data' => $urls, 'message' => 'URLs retrieved successfully.'], 200);
     }
 
@@ -34,7 +34,7 @@ class UrlApiController extends Controller
      */
     public function store(UrlRequest $request): JsonResponse
     {
-        $shortUrl = $request->short_url ? $request->short_url : Str::random(10);
+        $shortUrl = $request->short_url ?: Str::random(10);
 
         try {
             DB::transaction(function () use ($request, $shortUrl) {
@@ -57,7 +57,7 @@ class UrlApiController extends Controller
      */
     public function show(string $shortUrl): JsonResponse
     {
-        $url = $this->urlRepository->findByShortUrl($shortUrl);
+        $url = $this->urlRepository->findUrlByShortUrl($shortUrl);
 
         if (!$url) {
             return response()->json(['error' => 'URL not found.'], 404);
@@ -73,7 +73,7 @@ class UrlApiController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['short_url'] = $request->short_url ? $request->short_url : Str::random(10);
+            $shortUrl = $request->short_url ?: Str::random(10);
 
             DB::transaction(function () use ($id, $data) {
                 $this->urlRepository->update($id, $data);
@@ -106,14 +106,14 @@ class UrlApiController extends Controller
      */
     public function redirectToMainUrl(string $shortUrl): JsonResponse
     {
-        $url = $this->urlRepository->findByShortUrl($shortUrl);
+        $url = $this->urlRepository->findUrlByShortUrl($shortUrl);
 
         if (!$url) {
             return response()->json(['error' => 'URL not found.'], 404);
         }
 
-        $this->urlRepository->incrementClickCount($url);
+        $this->urlRepository->incrementShortUrlClickCount($url);
 
-        return response()->json(['data' => $url->long_url, 'message' => 'Redirecting to the long URL.'], 302);
+        return response()->json(['data' => $url->long_url, 'message' => 'Redirecting to the main URL.'], 302);
     }
 }
