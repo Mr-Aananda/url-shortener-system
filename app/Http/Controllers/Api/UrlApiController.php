@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UrlRequest;
+use App\Http\Resources\UrlResource;
 use App\Repositories\Url\UrlRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,13 @@ class UrlApiController extends Controller
     public function index(): JsonResponse
     {
         $urls = $this->urlRepository->getAllUrlByUserId(Auth::id());
-        return response()->json(['data' => $urls, 'message' => 'URLs retrieved successfully.'], 200);
+
+        $urlResource = UrlResource::collection($urls);
+
+        return response()->json([
+            'data' => $urlResource,
+            'message' => 'URLs retrieved successfully.',
+        ], 200);
     }
 
     /**
@@ -37,15 +44,18 @@ class UrlApiController extends Controller
         $shortUrl = $request->short_url ?: Str::random(10);
 
         try {
-            DB::transaction(function () use ($request, $shortUrl) {
-                $this->urlRepository->create([
+            $url = DB::transaction(function () use ($request, $shortUrl) {
+                return $this->urlRepository->create([
                     'long_url' => $request->input('long_url'),
                     'short_url' => $shortUrl,
                     'user_id' => Auth::id(),
                 ]);
             });
 
-            return response()->json(['message' => 'URL created successfully!'], 201);
+            return response()->json([
+                'data' => new UrlResource($url),
+                'message' => 'URL created successfully!',
+            ], 201);
         } catch (\Exception $e) {
             Log::error('Error creating URL:', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'An error occurred while creating the URL.'], 500);
@@ -63,7 +73,10 @@ class UrlApiController extends Controller
             return response()->json(['error' => 'URL not found.'], 404);
         }
 
-        return response()->json(['data' => $url, 'message' => 'URL retrieved successfully.'], 200);
+        return response()->json([
+            'data' => new UrlResource($url),
+            'message' => 'URL retrieved successfully.',
+        ], 200);
     }
 
     /**
@@ -71,15 +84,20 @@ class UrlApiController extends Controller
      */
     public function update(UrlRequest $request, string $id): JsonResponse
     {
-        try {
-            $data = $request->validated();
-            $shortUrl = $request->short_url ?: Str::random(10);
+        $shortUrl = $request->short_url ?: Str::random(10);
 
-            DB::transaction(function () use ($id, $data) {
-                $this->urlRepository->update($id, $data);
+        try {
+            $url = DB::transaction(function () use ($id, $request, $shortUrl) {
+                return $this->urlRepository->update($id, [
+                    'long_url' => $request->input('long_url'),
+                    'short_url' => $shortUrl,
+                ]);
             });
 
-            return response()->json(['message' => 'URL updated successfully.'], 200);
+            return response()->json([
+                'data' => new UrlResource($url),
+                'message' => 'URL updated successfully.',
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Error updating URL:', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'An error occurred while updating the URL.'], 500);
@@ -93,7 +111,10 @@ class UrlApiController extends Controller
     public function destroy(string $id): JsonResponse
     {
         try {
-            $this->urlRepository->delete($id);
+            DB::transaction(function () use ($id) {
+                $this->urlRepository->delete($id);
+            });
+
             return response()->json(['message' => 'URL deleted successfully.'], 200);
         } catch (\Exception $e) {
             Log::error('Error deleting URL:', ['error' => $e->getMessage()]);
@@ -114,6 +135,10 @@ class UrlApiController extends Controller
 
         $this->urlRepository->incrementShortUrlClickCount($url);
 
-        return response()->json(['data' => $url->long_url, 'message' => 'Redirecting to the main URL.'], 302);
+        return response()->json([
+            'data' => new UrlResource($url),
+            'message' => 'Redirecting to the main URL.',
+        ], 200);
     }
+
 }

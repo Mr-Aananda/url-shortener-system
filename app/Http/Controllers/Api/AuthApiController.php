@@ -18,7 +18,7 @@ class AuthApiController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-        $validatedData = $request->validate([
+        $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -26,9 +26,9 @@ class AuthApiController extends Controller
 
         try {
             $user = User::create([
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-                'password' => Hash::make($validatedData['password']),
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
             ]);
 
             return response()->json([
@@ -46,12 +46,12 @@ class AuthApiController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        $validatedData = $request->validate([
+        $data = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($validatedData)) {
+        if (!Auth::attempt($data)) {
             return response()->json(['error' => 'Credentials do not match'], 401);
         }
 
@@ -69,7 +69,6 @@ class AuthApiController extends Controller
     public function logout(Request $request): JsonResponse
     {
         $user = Auth::guard('sanctum')->user();
-
         if ($user) {
             $user->currentAccessToken()->delete();
 
