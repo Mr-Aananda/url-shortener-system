@@ -42,7 +42,7 @@
                         <!-- Short URL -->
                         <div class="mt-4">
                             <x-input-label for="short_url" :value="__('Short URL (optional)')" />
-                            <x-text-input id="short_url" class="block mt-1 w-full" type="text" name="short_url" :value="old('short_url', $url->short_url)" maxlength="10" />
+                            <x-text-input id="short_url" class="block mt-1 w-full" type="text" name="short_url" :value="old('short_url', $url->short_url)" maxlength="25" />
                             <x-input-error :messages="$errors->get('short_url')" class="mt-2" />
                         </div>
 

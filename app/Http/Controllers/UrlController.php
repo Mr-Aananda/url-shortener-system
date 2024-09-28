@@ -62,7 +62,7 @@ class UrlController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($shortUrl)
+    public function show(string $shortUrl)
     {
         try {
             $url = $this->urlRepository->findUrlByShortUrl($shortUrl);
@@ -76,7 +76,7 @@ class UrlController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($shortUrl)
+    public function edit(string $shortUrl)
     {
         try {
             $url = $this->urlRepository->findUrlByShortUrl($shortUrl);
